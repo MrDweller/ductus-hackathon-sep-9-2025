@@ -15,13 +15,12 @@ const snakeImages = [
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 export default function Game() {
-  const [cursor, setCursor] = useState({ x: 0, y: 0 });
-  const cursorRef = useRef(cursor);
-
-  const [snake, setSnake] = useState(
-    snakeImages.map((img, i) => ({
-      x: 100 - i * 20,
-      y: 100,
+    const [cursor, setCursor] = useState({ x: 0, y: 0 });
+    const cursorRef = useRef(cursor);
+    const [snake, setSnake] = useState(
+        snakeImages.map((img, i) => ({
+            x: 2000 - i * 20,
+            y: 600,
             img,
     }))
   );
@@ -160,19 +159,26 @@ useEffect(() => {
     return () => clearInterval(interval);
   }, []);
 
-  // Spawn items (tilldela klass och id vid spawn)
-  useEffect(() => {
-    const interval = setInterval(() => {
+// Spawn items (tilldela klass och id vid spawn)
+useEffect(() => {
+  const interval = setInterval(() => {
+    setItems((prev) => {
+      if (prev.length >= 3) {
+        // redan max antal ute, spawnar inget nytt
+        return prev;
+      }
+
       const x = Math.random() * window.innerWidth;
       const y = Math.random() * window.innerHeight;
       const klass = pickRandom(itemNames);
       const id = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 
-      setItems((prev) => [...prev, { id, x, y, klass }]);
-    }, 4000);
+      return [...prev, { id, x, y, klass }];
+    });
+  }, 4000);
 
-    return () => clearInterval(interval);
-  }, [itemNames]);
+  return () => clearInterval(interval);
+}, [itemNames]);
 
   // Item collision
   useEffect(() => {
@@ -218,6 +224,7 @@ useEffect(() => {
 
 
       {/* Items */}
+      
       {items.map((item) => (
         <div
           key={item.id}
