@@ -168,8 +168,8 @@ useEffect(() => {
         return prev;
       }
 
-      const x = Math.random() * window.innerWidth - 150;
-      const y = Math.random() * window.innerHeight - 150;
+      const x = Math.random() * window.innerWidth;
+      const y = Math.random() * window.innerHeight;
       const klass = pickRandom(itemNames);
       const id = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 
