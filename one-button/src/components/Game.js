@@ -15,13 +15,12 @@ const snakeImages = [
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 export default function Game() {
-  const [cursor, setCursor] = useState({ x: 0, y: 0 });
-  const cursorRef = useRef(cursor);
-
-  const [snake, setSnake] = useState(
-    snakeImages.map((img, i) => ({
-      x: 100 - i * 20,
-      y: 100,
+    const [cursor, setCursor] = useState({ x: 0, y: 0 });
+    const cursorRef = useRef(cursor);
+    const [snake, setSnake] = useState(
+        snakeImages.map((img, i) => ({
+            x: 2000 - i * 20,
+            y: 600,
             img,
     }))
   );
@@ -161,6 +160,35 @@ useEffect(() => {
   }, []);
 
   // Spawn items (tilldela klass och id vid spawn)
+  
+    // Item collision
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const { x: px, y: py } = cursorRef.current;
+            setItems((prev) =>
+                prev.filter((item) => {
+                    const dx = item.x - px;
+                    const dy = item.y - py;
+                    if (Math.sqrt(dx * dx + dy * dy) < 20) {
+                        setSnake((s) => {
+                            if (s.length > 1) {
+                                return s.slice(0, -1); // remove last segment
+                            } else {
+                                alert("🏆 Winner!");
+                                return []; // snake dead (can handle respawn elsewhere)
+                            }
+                        });
+                        return false;
+                    }
+                    return true;
+                })
+            );
+        }, 50);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // --- Spawn items ---
   useEffect(() => {
     const interval = setInterval(() => {
       const x = Math.random() * window.innerWidth;
