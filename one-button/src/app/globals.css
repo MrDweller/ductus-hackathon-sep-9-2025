@@ -101,3 +101,51 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+/* Full-screen red flash */
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+  z-index: 2000;
+}
+.flash-overlay.show {
+  opacity: 1;
+}
+
+/* Enemy death: expanding red ring + fade-out */
+.death-burst {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px; /* center on x */
+  margin-top: -10px;  /* center on y */
+  border-radius: 50%;
+  border: 3px solid rgba(255, 0, 0, 0.9);
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
+  animation: burst 0.4s ease-out forwards;
+  z-index: 1500;
+}
+
+@keyframes burst {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    border-color: rgba(255, 0, 0, 1);
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.9);
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+    border-color: rgba(255, 0, 0, 0);
+    box-shadow: 0 0 0 rgba(255, 0, 0, 0);
+  }
+}

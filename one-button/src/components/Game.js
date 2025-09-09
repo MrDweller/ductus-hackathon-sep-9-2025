@@ -28,6 +28,10 @@ export default function Game() {
 
   const [items, setItems] = useState([]);
 
+const [screenFlash, setScreenFlash] = useState(false);
+const [deathBursts, setDeathBursts] = useState([]); // {id,x,y}
+
+
   const [itemNames] = useState([
     "twin-swords", "twin-swords", "twin-swords", 
     "sword", "sword", "sword",
@@ -181,27 +185,65 @@ useEffect(() => {
 }, [itemNames]);
 
   // Item collision
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const { x: px, y: py } = cursorRef.current;
-      setItems((prev) =>
-        prev.filter((item) => {
-          const dx = item.x - px;
-          const dy = item.y - py;
-          if (Math.sqrt(dx * dx + dy * dy) < 20) {
-            setSnake((s) => (s.length > 1 ? s.slice(0, -1) : s));
-            return false;
-          }
-          return true;
-        })
-      );
-    }, 50);
+useEffect(() => {
+  const interval = setInterval(() => {
+    const { x: px, y: py } = cursorRef.current;
 
-    return () => clearInterval(interval);
-  }, []);
+    setItems((prev) =>
+      prev.filter((item) => {
+        const dx = item.x - px;
+        const dy = item.y - py;
+
+        if (Math.sqrt(dx * dx + dy * dy) < 20) {
+          // 1) Red screen flash on pickup
+          setScreenFlash(true);
+          setTimeout(() => setScreenFlash(false), 150);
+
+          // 2) Kill the last enemy (segment) with a red burst where it was
+          setSnake((s) => {
+            if (!s.length) return s;
+            const victim = s[s.length - 1];
+            const id = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+
+            // spawn a short-lived burst at the victim’s position
+            setDeathBursts((prevB) => [...prevB, { id, x: victim.x, y: victim.y }]);
+            setTimeout(() => {
+              setDeathBursts((prevB) => prevB.filter((b) => b.id !== id));
+            }, 400); // must match CSS animation duration
+
+            // actually remove the victim
+            return s.length > 1 ? s.slice(0, -1) : s;
+          });
+
+          return false; // remove item
+        }
+
+        return true;
+      })
+    );
+  }, 50);
+
+  return () => clearInterval(interval);
+}, []);
+
 
   return (
+
+    
     <div className="game-area" style={{ minHeight: "100vh", position: "relative" }}>
+     {/* Red screen flash on pickup */}
+<div className={`flash-overlay ${screenFlash ? "show" : ""}`} />
+
+{/* Red death bursts where enemies die */}
+{deathBursts.map((b) => (
+  <div
+    key={b.id}
+    className="death-burst"
+    style={{ left: b.x, top: b.y }}
+  />
+))}
+
+     
       {/* Player */}
       <div className="player" style={{ left: cursor.x, top: cursor.y, position: "absolute" }} />
 
