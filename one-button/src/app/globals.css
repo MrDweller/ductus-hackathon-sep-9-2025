@@ -28,16 +28,51 @@ body {
 }
 
 .item {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background: url('../../assets/button-icon.png') no-repeat center/contain;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: url('../../assets/button-icon.png') no-repeat center/contain;
   @media (prefers-color-scheme: dark) {
     :root {
       --background: #c4c4c4;
       --foreground: #000000;
     }
   }
+}
+
+.twin-swords {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: url('../../public/1643160.png');
+}
+
+.sword {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: url('../../public/4155897.png');
+}
+
+.bow {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: url('../../public/2929720.png');
+}
+
+.bomb {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: url('../../public/6593341.png');
+}
+
+.needle {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: url('../../public/8153575.png');
 }
 
 body {
