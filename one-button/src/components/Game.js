@@ -13,9 +13,10 @@ export default function Game() {
     const [cursor, setCursor] = useState({ x: 0, y: 0 });
     const cursorRef = useRef(cursor);
     const [snake, setSnake] = useState(
-        snakeImages.map((_, i) => ({
+        snakeImages.map((img, i) => ({
             x: 100 - i * 20,
             y: 100,
+            img,
         }))
     );
     const snakeRef = useRef(snake);
@@ -112,7 +113,13 @@ export default function Game() {
                     const dx = item.x - px;
                     const dy = item.y - py;
                     if (Math.sqrt(dx * dx + dy * dy) < 20) {
-                        setSnake((s) => (s.length > 1 ? s.slice(0, -1) : s));
+                        setSnake((s) => {
+                            if (s.length > 1) {
+                                return s.slice(0, -1); // remove last segment
+                            } else {
+                                return []; // snake dead (can handle respawn elsewhere)
+                            }
+                        });
                         return false;
                     }
                     return true;
@@ -123,7 +130,7 @@ export default function Game() {
         return () => clearInterval(interval);
     }, []);
 
-    
+
 
     return (
         <div className="game-area">
@@ -141,7 +148,7 @@ export default function Game() {
                     style={{
                         left: seg.x,
                         top: seg.y,
-                        background: `url(${snakeImages[i]}) no-repeat center/contain`,
+                        background: `url(${seg.img}) no-repeat center/contain`,
                     }}
                 />
             ))}
