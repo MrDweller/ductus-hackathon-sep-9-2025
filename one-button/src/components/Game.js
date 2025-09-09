@@ -5,6 +5,7 @@ import HealthBar from "./health-bar";
 
 
 const snakeImages = [
+    "/victor.png",
     "/arthur.jpg",
     "/gustav.jpg",
     "/tobias.jpg",
