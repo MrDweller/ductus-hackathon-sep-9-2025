@@ -160,19 +160,26 @@ useEffect(() => {
     return () => clearInterval(interval);
   }, []);
 
-  // Spawn items (tilldela klass och id vid spawn)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const x = Math.random() * window.innerWidth;
-      const y = Math.random() * window.innerHeight;
+// Spawn items (tilldela klass och id vid spawn)
+useEffect(() => {
+  const interval = setInterval(() => {
+    setItems((prev) => {
+      if (prev.length >= 3) {
+        // redan max antal ute, spawnar inget nytt
+        return prev;
+      }
+
+      const x = Math.random() * window.innerWidth - 150;
+      const y = Math.random() * window.innerHeight - 150;
       const klass = pickRandom(itemNames);
       const id = crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 
-      setItems((prev) => [...prev, { id, x, y, klass }]);
-    }, 4000);
+      return [...prev, { id, x, y, klass }];
+    });
+  }, 4000);
 
-    return () => clearInterval(interval);
-  }, [itemNames]);
+  return () => clearInterval(interval);
+}, [itemNames]);
 
   // Item collision
   useEffect(() => {
@@ -218,6 +225,7 @@ useEffect(() => {
 
 
       {/* Items */}
+      
       {items.map((item) => (
         <div
           key={item.id}
