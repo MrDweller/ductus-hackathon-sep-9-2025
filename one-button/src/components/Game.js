@@ -211,6 +211,10 @@ useEffect(() => {
               setDeathBursts((prevB) => prevB.filter((b) => b.id !== id));
             }, 400); // must match CSS animation duration
 
+            if (s.length < 1) {
+                alert("🏆 Winner!");
+            } 
+            
             // actually remove the victim
             return s.length > 1 ? s.slice(0, -1) : s;
           });
