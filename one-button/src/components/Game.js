@@ -86,14 +86,14 @@ export default function Game() {
 
 // --- Snake movement with increasing speed ---
 useEffect(() => {
-  let speed = 6; 
+  let speed = 12; 
   const spacing = 100;
 
   // every 5 seconds increase speed
   const speedInterval = setInterval(() => {
     speed += 1;
     console.log("Speed increased:", speed);
-  }, 5000);
+  }, 2000);
 
   const moveInterval = setInterval(() => {
     setSnake((prev) => {
