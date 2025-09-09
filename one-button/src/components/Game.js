@@ -5,9 +5,9 @@ import HealthBar from "./health-bar";
 
 
 const snakeImages = [
+    "/gustav.jpg",
     "/victor.png",
     "/arthur.jpg",
-    "/gustav.jpg",
     "/tobias.jpg",
 ];
 
@@ -211,7 +211,7 @@ useEffect(() => {
               setDeathBursts((prevB) => prevB.filter((b) => b.id !== id));
             }, 400); // must match CSS animation duration
 
-            if (s.length < 1) {
+            if (s.length <= 1) {
                 alert("🏆 Winner!");
             } 
             
