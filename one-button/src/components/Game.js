@@ -70,42 +70,58 @@ export default function Game() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // --- Snake movement ---
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSnake((prev) => {
-        const newSnake = [...prev];
-        const head = { ...newSnake[0] };
-        const { x: targetX, y: targetY } = cursorRef.current;
+// --- Snake movement with increasing speed ---
+useEffect(() => {
+  let speed = 6; 
+  const spacing = 100;
 
-        const dx = targetX - head.x;
-        const dy = targetY - head.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const speed = 3;
-        if (dist > 1) {
-          head.x += (dx / dist) * speed;
-          head.y += (dy / dist) * speed;
+  // every 5 seconds increase speed
+  const speedInterval = setInterval(() => {
+    speed += 1;
+    console.log("Speed increased:", speed);
+  }, 5000);
+
+  const moveInterval = setInterval(() => {
+    setSnake((prev) => {
+      const newSnake = [...prev];
+      const head = { ...newSnake[0] };
+      const { x: targetX, y: targetY } = cursorRef.current;
+
+      const dx = targetX - head.x;
+      const dy = targetY - head.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist > 1) {
+        head.x += (dx / dist) * speed;
+        head.y += (dy / dist) * speed;
+      }
+      newSnake[0] = head;
+
+      for (let i = 1; i < newSnake.length; i++) {
+        const prevSeg = newSnake[i - 1];
+        const seg = { ...newSnake[i] };
+        const ddx = prevSeg.x - seg.x;
+        const ddy = prevSeg.y - seg.y;
+        const ddist = Math.sqrt(ddx * ddx + ddy * ddy);
+
+        if (ddist > spacing) {
+          seg.x += (ddx / ddist) * speed;
+          seg.y += (ddy / ddist) * speed;
         }
-        newSnake[0] = head;
 
-        for (let i = 1; i < newSnake.length; i++) {
-          const prevSeg = newSnake[i - 1];
-          const seg = { ...newSnake[i] };
-          const ddx = prevSeg.x - seg.x;
-          const ddy = prevSeg.y - seg.y;
-          const ddist = Math.sqrt(ddx * ddx + ddy * ddy);
-          if (ddist > 20) {
-            seg.x += (ddx / ddist) * 2;
-            seg.y += (ddy / ddist) * 2;
-          }
-          newSnake[i] = seg;
-        }
-        return newSnake;
-      });
-    }, 30);
+        newSnake[i] = seg;
+      }
 
-    return () => clearInterval(interval);
-  }, []);
+      return newSnake;
+    });
+  }, 30);
+
+  return () => {
+    clearInterval(moveInterval);
+    clearInterval(speedInterval);
+  };
+}, []);
+
 
 
   useEffect(() => {
@@ -175,13 +191,22 @@ export default function Game() {
       <div className="player" style={{ left: cursor.x, top: cursor.y, position: "absolute" }} />
 
       {/* Snake */}
-      {snake.map((seg, i) => (
-        <div
-          key={i}
-          className="snake-seg"
-          style={{ left: seg.x, top: seg.y, position: "absolute", background: `url(${seg.img}) no-repeat center/contain` }}
-        />
-      ))}
+{snake.map((seg, i) => (
+  <div
+    key={i}
+    className="snake-seg"
+    style={{
+      left: seg.x,
+      top: seg.y,
+      position: "absolute",
+      width: "80px",     // 3× bigger
+      height: "80px",    // 3× bigger
+      background: `url(${seg.img}) no-repeat center/cover`,
+      borderRadius: "50%", // optional, makes them circular
+    }}
+  />
+))}
+
 
       {/* Items */}
       {items.map((item, i) => (
