@@ -42,36 +42,36 @@ body {
 
 .twin-swords {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 100x;
+  height: 100px;
   background: url('../../public/1643160.png') no-repeat center/contain;
 }
 
 .sword {
   position: absolute;
-  width: 40px;
-  height: 40px;
+  width: 100px;
+  height: 100px;
   background: url('../../public/4155897.png') no-repeat center/contain;
 }
 
 .bow {
   position: absolute;
-  width: 30px;
-  height: 30px;
+  width: 100px;
+  height: 100px;
   background: url('../../public/2929720.png') no-repeat center/contain;
 }
 
 .bomb {
   position: absolute;
-  width: 15px;
-  height: 15px;
+  width: 100px;
+  height: 100px;
   background: url('../../public/6593341.png') no-repeat center/contain;
 }
 
 .needle {
   position: absolute;
-  width: 50px;
-  height: 50px;
+  width: 100px;
+  height: 100px;
   background: url('../../public/8153575.png') no-repeat center/contain;
 }
 
