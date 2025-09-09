@@ -1,147 +1,222 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import HealthBar from "./health-bar"; 
 
 export default function Game() {
-    const [cursor, setCursor] = useState({ x: 0, y: 0 });
-    const cursorRef = useRef(cursor);
-    const [snake, setSnake] = useState(
-        Array.from({ length: 6 }).map((_, i) => ({
-            x: 100 - i * 20,
-            y: 100,
-        }))
-    );
-    const [items, setItems] = useState([]);
+  const [cursor, setCursor] = useState({ x: 0, y: 0 });
+  const cursorRef = useRef(cursor);
+  const [snake, setSnake] = useState(
+    Array.from({ length: 6 }).map((_, i) => ({
+      x: 100 - i * 20,
+      y: 100,
+    }))
+  );
+  const [items, setItems] = useState([]);
 
-    // Track cursor
-    useEffect(() => {
-        const handleMouseMove = (e) => {
-            const pos = { x: e.clientX, y: e.clientY };
-            setCursor(pos);
-            cursorRef.current = pos;
-        };
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => window.removeEventListener("mousemove", handleMouseMove);
-    }, []);
+  // --- Health pulses (parent-controlled) ---
+  const [heroHeal, setHeroHeal] = useState(0);
+  const [heroDamage, setHeroDamage] = useState(0);
 
-    // Snake movement
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setSnake((prev) => {
-                const newSnake = [...prev];
-                const head = { ...newSnake[0] };
-                const { x: targetX, y: targetY } = cursorRef.current;
+  const [enemyHeals, setEnemyHeals] = useState([0, 0, 0, 0]);
+  const [enemyDamages, setEnemyDamages] = useState([0, 0, 0, 0]);
 
-                const dx = targetX - head.x;
-                const dy = targetY - head.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                const speed = 3;
-                if (dist > 1) {
-                    head.x += (dx / dist) * speed;
-                    head.y += (dy / dist) * speed;
-                }
-                newSnake[0] = head;
+  // Helper to send a "pulse" (set value then reset to 0) so the child applies it every time
+  const pulseSetter = (setter, idx = null) => (amount) => {
+    if (idx === null) {
+      setter(amount);
+      // reset after render tick
+      setTimeout(() => setter(0), 0);
+    } else {
+      setter((prev) => {
+        const copy = [...prev];
+        copy[idx] = amount;
+        return copy;
+      });
+      setTimeout(() =>
+        setter((prev) => {
+          const copy = [...prev];
+          copy[idx] = 0;
+          return copy;
+        }), 0
+      );
+    }
+  };
 
-                for (let i = 1; i < newSnake.length; i++) {
-                    const prevSeg = newSnake[i - 1];
-                    const seg = { ...newSnake[i] };
-                    const dx = prevSeg.x - seg.x;
-                    const dy = prevSeg.y - seg.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist > 20) {
-                        seg.x += (dx / dist) * 2;
-                        seg.y += (dy / dist) * 2;
-                    }
-                    newSnake[i] = seg;
-                }
-                return newSnake;
-            });
-        }, 30);
+  // Public-ish actions you can call from anywhere in this component:
+  const healHero = pulseSetter(setHeroHeal);
+  const damageHero = pulseSetter(setHeroDamage);
+  const healEnemy = (i, amount) => pulseSetter(setEnemyHeals, i)(amount);
+  const damageEnemy = (i, amount) => pulseSetter(setEnemyDamages, i)(amount);
 
-        return () => clearInterval(interval);
-    }, []);
+  // Example: damage hero every 6s (remove this in real game)
+  // useEffect(() => {
+  //   const t = setInterval(() => damageHero(5), 6000);
+  //   return () => clearInterval(t);
+  // }, []);
 
-    const snakeRef = useRef(snake);
+  // --- Cursor tracking ---
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const pos = { x: e.clientX, y: e.clientY };
+      setCursor(pos);
+      cursorRef.current = pos;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
-    // keep snakeRef updated
-    useEffect(() => {
-        snakeRef.current = snake;
-    }, [snake]);
+  // --- Snake movement ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSnake((prev) => {
+        const newSnake = [...prev];
+        const head = { ...newSnake[0] };
+        const { x: targetX, y: targetY } = cursorRef.current;
 
-    // Snake collision
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const { x: px, y: py } = cursorRef.current;
+        const dx = targetX - head.x;
+        const dy = targetY - head.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const speed = 3;
+        if (dist > 1) {
+          head.x += (dx / dist) * speed;
+          head.y += (dy / dist) * speed;
+        }
+        newSnake[0] = head;
 
-            snakeRef.current.forEach((seg) => {
-                const dx = seg.x - px;
-                const dy = seg.y - py;
-                if (Math.sqrt(dx * dx + dy * dy) < 20) {
-                    alert("💀 Game Over!");
-                    window.location.reload();
-                }
-            });
-        }, 50);
+        for (let i = 1; i < newSnake.length; i++) {
+          const prevSeg = newSnake[i - 1];
+          const seg = { ...newSnake[i] };
+          const ddx = prevSeg.x - seg.x;
+          const ddy = prevSeg.y - seg.y;
+          const ddist = Math.sqrt(ddx * ddx + ddy * ddy);
+          if (ddist > 20) {
+            seg.x += (ddx / ddist) * 2;
+            seg.y += (ddy / ddist) * 2;
+          }
+          newSnake[i] = seg;
+        }
+        return newSnake;
+      });
+    }, 30);
 
-        return () => clearInterval(interval);
-    }, []);
+    return () => clearInterval(interval);
+  }, []);
 
-    // Spawn items
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const x = Math.random() * window.innerWidth;
-            const y = Math.random() * window.innerHeight;
-            setItems((prev) => [...prev, { x, y }]);
-        }, 4000);
+  const snakeRef = useRef(snake);
+  useEffect(() => {
+    snakeRef.current = snake;
+  }, [snake]);
 
-        return () => clearInterval(interval);
-    }, []);
+  // --- Snake collision ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const { x: px, y: py } = cursorRef.current;
 
-    // Item collision
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const { x: px, y: py } = cursorRef.current;
-            setItems((prev) =>
-                prev.filter((item) => {
-                    const dx = item.x - px;
-                    const dy = item.y - py;
-                    if (Math.sqrt(dx * dx + dy * dy) < 20) {
-                        setSnake((s) => (s.length > 1 ? s.slice(0, -1) : s));
-                        return false;
-                    }
-                    return true;
-                })
-            );
-        }, 50);
+      snakeRef.current.forEach((seg) => {
+        const dx = seg.x - px;
+        const dy = seg.y - py;
+        if (Math.sqrt(dx * dx + dy * dy) < 20) {
+          alert("💀 Game Over!");
+          window.location.reload();
+        }
+      });
+    }, 50);
 
-        return () => clearInterval(interval);
-    }, []);
+    return () => clearInterval(interval);
+  }, []);
 
-    return (
-        <div className="game-area">
-            {/* Player */}
-            <div
-                className="player"
-                style={{ left: cursor.x, top: cursor.y }}
-            />
+  // --- Spawn items ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const x = Math.random() * window.innerWidth;
+      const y = Math.random() * window.innerHeight;
+      setItems((prev) => [...prev, { x, y }]);
+    }, 4000);
 
-            {/* Snake */}
-            {snake.map((seg, i) => (
-                <div
-                    key={i}
-                    className="snake-seg"
-                    style={{ left: seg.x, top: seg.y }}
-                />
-            ))}
+    return () => clearInterval(interval);
+  }, []);
 
-            {/* Items */}
-            {items.map((item, i) => (
-                <div
-                    key={i}
-                    className="item"
-                    style={{ left: item.x, top: item.y }}
-                />
-            ))}
-        </div>
-    );
+  // --- Item collision ---
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const { x: px, y: py } = cursorRef.current;
+      setItems((prev) =>
+        prev.filter((item) => {
+          const dx = item.x - px;
+          const dy = item.y - py;
+          if (Math.sqrt(dx * dx + dy * dy) < 20) {
+            setSnake((s) => (s.length > 1 ? s.slice(0, -1) : s));
+            return false;
+          }
+          return true;
+        })
+      );
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="game-area" style={{ minHeight: "100vh", position: "relative" }}>
+      {/* Player */}
+      <div className="player" style={{ left: cursor.x, top: cursor.y, position: "absolute" }} />
+
+      {/* Snake */}
+      {snake.map((seg, i) => (
+        <div
+          key={i}
+          className="snake-seg"
+          style={{ left: seg.x, top: seg.y, position: "absolute" }}
+        />
+      ))}
+
+      {/* Items */}
+      {items.map((item, i) => (
+        <div
+          key={i}
+          className="item"
+          style={{ left: item.x, top: item.y, position: "absolute" }}
+        />
+      ))}
+
+      {/* --- HEALTH FOOTER --- */}
+      <footer
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: "rgba(0,0,0,0.8)",
+          padding: "12px 16px",
+          display: "grid",
+          gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+          gap: "16px",
+          color: "#fff",
+          zIndex: 1000,
+        }}
+      >
+{/* Hero */}
+<div style={{ textAlign: "center" }}>
+  <div style={{ marginBottom: 6, fontWeight: 700 }}>Hero</div>
+  <HealthBar maxValue={100} heal={heroHeal} damage={heroDamage} />
+</div>
+
+{/* Enemies */}
+{["Arthur", "Gustav", "Victor", "Tobias"].map((name, i) => (
+  <div key={name} style={{ textAlign: "center" }}>
+    <div style={{ marginBottom: 6, fontWeight: 700 }}>{name}</div>
+    <HealthBar
+      maxValue={100}
+      heal={enemyHeals[i]}
+      damage={enemyDamages[i]}
+      isEnemy
+    />
+  </div>
+))}
+
+
+      </footer>
+    </div>
+  );
 }
