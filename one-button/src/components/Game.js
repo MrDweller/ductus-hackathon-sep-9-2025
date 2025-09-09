@@ -15,13 +15,12 @@ const snakeImages = [
 const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 export default function Game() {
-  const [cursor, setCursor] = useState({ x: 0, y: 0 });
-  const cursorRef = useRef(cursor);
-
-  const [snake, setSnake] = useState(
-    snakeImages.map((img, i) => ({
-      x: 100 - i * 20,
-      y: 100,
+    const [cursor, setCursor] = useState({ x: 0, y: 0 });
+    const cursorRef = useRef(cursor);
+    const [snake, setSnake] = useState(
+        snakeImages.map((img, i) => ({
+            x: 2000 - i * 20,
+            y: 600,
             img,
     }))
   );
@@ -86,14 +85,14 @@ export default function Game() {
 
 // --- Snake movement with increasing speed ---
 useEffect(() => {
-  let speed = 6; 
+  let speed = 12; 
   const spacing = 100;
 
   // every 5 seconds increase speed
   const speedInterval = setInterval(() => {
     speed += 1;
     console.log("Speed increased:", speed);
-  }, 5000);
+  }, 2000);
 
   const moveInterval = setInterval(() => {
     setSnake((prev) => {
