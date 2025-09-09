@@ -11,9 +11,9 @@ body {
 
 .player {
   position: absolute;
-  width: 32px;
-  height: 32px;
-  background: url('../../assets/button-icon-2.png') no-repeat center/contain;
+  width: 64px;
+  height: 64px;
+  background: url('../../assets/btn-icon.png') no-repeat center/contain;
   pointer-events: none;
 }
 
@@ -29,9 +29,9 @@ body {
 
 .item {
   position: absolute;
-  width: 20px;
-  height: 20px;
-  background: url('../../assets/button-icon.png') no-repeat center/contain;
+  width: 80px;
+  height: 80px;
+  background: url('../../public/6593341.png') no-repeat center/contain;
   @media (prefers-color-scheme: dark) {
     :root {
       --background: #c4c4c4;
