@@ -3,16 +3,25 @@
 import { useState, useEffect, useRef } from "react";
 import HealthBar from "./health-bar"; 
 
+
+const snakeImages = [
+    "/arthur.jpg",
+    "/gustav.jpg",
+    "/tobias.jpg",
+];
+
 export default function Game() {
-  const [cursor, setCursor] = useState({ x: 0, y: 0 });
-  const cursorRef = useRef(cursor);
-  const [snake, setSnake] = useState(
-    Array.from({ length: 6 }).map((_, i) => ({
-      x: 100 - i * 20,
-      y: 100,
-    }))
-  );
-  const [items, setItems] = useState([]);
+    const [cursor, setCursor] = useState({ x: 0, y: 0 });
+    const cursorRef = useRef(cursor);
+    const [snake, setSnake] = useState(
+        snakeImages.map((img, i) => ({
+            x: 100 - i * 20,
+            y: 100,
+            img,
+        }))
+    );
+    const snakeRef = useRef(snake);
+    const [items, setItems] = useState([]);
 
   // --- Health pulses (parent-controlled) ---
   const [heroHeal, setHeroHeal] = useState(0);
@@ -49,11 +58,6 @@ export default function Game() {
   const healEnemy = (i, amount) => pulseSetter(setEnemyHeals, i)(amount);
   const damageEnemy = (i, amount) => pulseSetter(setEnemyDamages, i)(amount);
 
-  // Example: damage hero every 6s (remove this in real game)
-  // useEffect(() => {
-  //   const t = setInterval(() => damageHero(5), 6000);
-  //   return () => clearInterval(t);
-  // }, []);
 
   // --- Cursor tracking ---
   useEffect(() => {
@@ -103,7 +107,7 @@ export default function Game() {
     return () => clearInterval(interval);
   }, []);
 
-  const snakeRef = useRef(snake);
+
   useEffect(() => {
     snakeRef.current = snake;
   }, [snake]);
@@ -126,6 +130,33 @@ export default function Game() {
     return () => clearInterval(interval);
   }, []);
 
+  
+    // Item collision
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const { x: px, y: py } = cursorRef.current;
+            setItems((prev) =>
+                prev.filter((item) => {
+                    const dx = item.x - px;
+                    const dy = item.y - py;
+                    if (Math.sqrt(dx * dx + dy * dy) < 20) {
+                        setSnake((s) => {
+                            if (s.length > 1) {
+                                return s.slice(0, -1); // remove last segment
+                            } else {
+                                return []; // snake dead (can handle respawn elsewhere)
+                            }
+                        });
+                        return false;
+                    }
+                    return true;
+                })
+            );
+        }, 50);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // --- Spawn items ---
   useEffect(() => {
     const interval = setInterval(() => {
@@ -137,25 +168,6 @@ export default function Game() {
     return () => clearInterval(interval);
   }, []);
 
-  // --- Item collision ---
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const { x: px, y: py } = cursorRef.current;
-      setItems((prev) =>
-        prev.filter((item) => {
-          const dx = item.x - px;
-          const dy = item.y - py;
-          if (Math.sqrt(dx * dx + dy * dy) < 20) {
-            setSnake((s) => (s.length > 1 ? s.slice(0, -1) : s));
-            return false;
-          }
-          return true;
-        })
-      );
-    }, 50);
-
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div className="game-area" style={{ minHeight: "100vh", position: "relative" }}>
@@ -167,7 +179,7 @@ export default function Game() {
         <div
           key={i}
           className="snake-seg"
-          style={{ left: seg.x, top: seg.y, position: "absolute" }}
+          style={{ left: seg.x, top: seg.y, position: "absolute", background: `url(${seg.img}) no-repeat center/contain` }}
         />
       ))}
 

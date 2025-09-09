@@ -7,7 +7,6 @@ body {
   width: 100vw;
   height: 100vh;
   position: relative;
-  background: #111;
 }
 
 .player {
@@ -22,7 +21,10 @@ body {
   position: absolute;
   width: 24px;
   height: 24px;
-  background: url('../../assets/button-icon.png') no-repeat center/contain;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none; /* optional: ensures it doesn’t block clicks */
 }
 
 .item {
@@ -30,11 +32,47 @@ body {
   width: 20px;
   height: 20px;
   background: url('../../assets/button-icon.png') no-repeat center/contain;
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #c4c4c4;
-    --foreground: #000000;
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #c4c4c4;
+      --foreground: #000000;
+    }
   }
+}
+
+.twin-swords {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: url('../../public/1643160.png');
+}
+
+.sword {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: url('../../public/4155897.png');
+}
+
+.bow {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: url('../../public/2929720.png');
+}
+
+.bomb {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: url('../../public/6593341.png');
+}
+
+.needle {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: url('../../public/8153575.png');
 }
 
 body {
@@ -44,7 +82,24 @@ body {
   background-position: center; 
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  cursor: url('../../assets/button-icon-2.png') 32 32, auto;
+}
+
+.stage1 {
+  background: url('../../public/bg3.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center; 
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.stage2 {
+    background: url('../../public/bg4.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center; 
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 }
