@@ -11,8 +11,8 @@ body {
 
 .player {
   position: absolute;
-  width: 64px;
-  height: 64px;
+  width: 100px;
+  height: 100px;
   background: url('../../assets/btn-icon.png') no-repeat center/contain;
   pointer-events: none;
 }
