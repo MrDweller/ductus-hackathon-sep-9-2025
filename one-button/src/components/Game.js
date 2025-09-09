@@ -2,15 +2,23 @@
 
 import { useState, useEffect, useRef } from "react";
 
+
+const snakeImages = [
+    "/arthur.jpg",
+    "/gustav.jpg",
+    "/tobias.jpg",
+];
+
 export default function Game() {
     const [cursor, setCursor] = useState({ x: 0, y: 0 });
     const cursorRef = useRef(cursor);
     const [snake, setSnake] = useState(
-        Array.from({ length: 6 }).map((_, i) => ({
+        snakeImages.map((_, i) => ({
             x: 100 - i * 20,
             y: 100,
         }))
     );
+    const snakeRef = useRef(snake);
     const [items, setItems] = useState([]);
 
     // Track cursor
@@ -60,8 +68,6 @@ export default function Game() {
 
         return () => clearInterval(interval);
     }, []);
-
-    const snakeRef = useRef(snake);
 
     // keep snakeRef updated
     useEffect(() => {
@@ -117,6 +123,8 @@ export default function Game() {
         return () => clearInterval(interval);
     }, []);
 
+    
+
     return (
         <div className="game-area">
             {/* Player */}
@@ -130,7 +138,11 @@ export default function Game() {
                 <div
                     key={i}
                     className="snake-seg"
-                    style={{ left: seg.x, top: seg.y }}
+                    style={{
+                        left: seg.x,
+                        top: seg.y,
+                        background: `url(${snakeImages[i]}) no-repeat center/contain`,
+                    }}
                 />
             ))}
 

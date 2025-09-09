@@ -22,7 +22,10 @@ body {
   position: absolute;
   width: 24px;
   height: 24px;
-  background: url('../../assets/button-icon.png') no-repeat center/contain;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none; /* optional: ensures it doesn’t block clicks */
 }
 
 .item {
